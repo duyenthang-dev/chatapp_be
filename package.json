@@ -1,0 +1,35 @@
+{
+  "name": "tts06_e2ee_chat_app_api",
+  "version": "1.0.0",
+  "description": "Backend API for chat application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://DevUnit3@dev.azure.com/DevUnit3/TTS06_E2EE_Chat_App_API/_git/TTS06_E2EE_Chat_App_API"
+  },
+  "author": "TTS06",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "http-errors": "^2.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.3",
+    "mongodb": "^4.7.0",
+    "mongoose": "^6.3.8",
+    "nodemailer": "^6.7.5",
+    "nodemon": "^2.0.16",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^7.1.2",
+    "passport-jwt": "^4.0.0"
+  }
+}

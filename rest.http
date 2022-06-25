@@ -1,0 +1,123 @@
+### Register: đăng ký tài khoản, trả về accessToken và refreshToken để client ghi nhận và sử dụng cho các lần gửi request tiếp theo
+# URL: ${protocol}://${hostname}/api/v1/auth/register
+# headers: {
+#   Content-Type: application/json;
+#}
+# body: {
+#   "fullname": String,
+#   "email": String,
+#   "password": String
+#}
+POST http://localhost:5000/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "fullname": "Nguyễn Như Việt",
+    "email": "test3@gmail.com",
+    "password": "12345"
+}
+
+
+### Register: đăng nhập, trả về accessToken và refreshToken để client ghi nhận và sử dụng cho các lần gửi request tiếp theo
+# URL: ${protocol}://${hostname}/api/v1/auth/login
+# headers: {
+#   Content-Type: application/json;
+#}
+# body: {
+#   "email": String,
+#   "password": String
+#}
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "test1@gmail.com",
+    "password": "hehe"
+}
+
+
+### Refesh token: lấy lại accessToken để duy trì trạng thái đăng nhập của tài khoản (accessToken có thời hạn 15p) 
+# URL: ${protocol}://${hostname}/api/v1/auth/refresh-token
+# headers: {
+#   Content-Type: application/json;
+#}
+# body: {
+#   "refreshToken": String,
+#}
+POST http://localhost:5000/api/v1/auth/refresh-token
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjM1ZTllYjk0YmIzMGVmZjNjMmU1NiIsImlhdCI6MTY1NTkyMzcwNiwiZXhwIjoxNjYzNjk5NzA2fQ.0ytfRTGlwDZlHNAPQsFVgLQCYnqxE7lZrdLeV0efB8c"
+}
+
+
+### View user profile: xem thông tin tài khoản, cần cung cấp accessToken để có thể truy cập được API này
+# URL: ${protocol}://${hostname}/api/v1/auth/refresh-token
+# headers: {
+#   Content-Type: application/json;
+#   Authorization: Bearer + " " + ${accessToken}
+#}
+# body: {}
+GET http://localhost:5000/api/v1/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjM1ZTllYjk0YmIzMGVmZjNjMmU1NiIsImlhdCI6MTY1NTk3NjA5MywiZXhwIjoxNjU1OTc2MzkzfQ.ll7tTEN5Hd1t1Zowr13TAVYgV-TCrCtyBI1Ah-nOSNM
+
+
+
+### Update user profile: sửa thông tin tài khoản, cần cung cấp accessToken để có thể truy cập được API này
+# URL: ${protocol}://${hostname}/api/v1/users/me
+# headers: {
+#   Content-Type: application/json;
+#   Authorization: Bearer + " " + ${accessToken}
+#}
+# body: {
+    // các trường dữ liệu cần update
+#}
+PATCH http://localhost:5000/api/v1/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjM1ZTllYjk0YmIzMGVmZjNjMmU1NiIsImlhdCI6MTY1NTk3NjA5MywiZXhwIjoxNjU1OTc2MzkzfQ.ll7tTEN5Hd1t1Zowr13TAVYgV-TCrCtyBI1Ah-nOSNM
+Content-Type: application/json
+
+{
+    "fullname": "Nguyễn Văn Việt",
+    "phoneNumber": "0123456789",
+    "birthDay": "2001-06-05T23:15:30.000Z",
+    "address": {
+        "street": "53 Hoàng Việt",
+        "wards": "Phường 4",
+        "district": "Tân Bình",
+        "city": "TP.HCM"
+    }
+}
+
+### Forgot user password: lấy lại mật khẩu trong trường hợp quên mật khẩu,
+#                        gửi link reset mật khẩu qua email
+# URL: ${protocol}://${hostname}/api/v1/users/forgot-password
+# headers: {
+#   Content-Type: application/json;
+#}
+# body: {
+#   "email": String
+#}
+POST http://localhost:5000/api/v1/users/forgot-password
+Content-Type: application/json
+
+    {
+        "email": "test1@gmail.com"
+    }
+
+
+### Reset password: Sau khi nhận được mail chứa link reset, user bám vào link và nhập lại mật khẩu mới
+#                  server ghi nhận lại mật khẩu mới và trả về accessToken và refreshToken mới
+# URL: ${protocol}://${hostname}/api/v1/users/reset-password/${resetPasswordToken}
+# headers: {
+#   Content-Type: application/json;
+#}
+# body: {
+#   "password": String
+#}
+PATCH http://localhost:5000/api/v1/users/reset-password/1ddb92c441519ee439959e7e167f77d5e33d73528831b269484adfce98a4959c
+Content-Type: application/json
+
+{
+    "password": "hehe"
+}
