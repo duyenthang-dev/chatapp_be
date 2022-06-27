@@ -3,9 +3,15 @@ const createError = require('http-errors');
 const sendEmail = require('./../utils/mailSender');
 const {signAccessToken, signRefreshToken} = require('../utils/jwtToken')
 
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
     try {
-        next();
+        const users = await User.find();
+        return res.status(200).json({
+            success: true,
+            data: {
+                users,
+            },
+        });
     } catch (err) {
         console.error(err);
         return next(createError.BadRequest('Bad request'));

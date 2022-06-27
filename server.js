@@ -7,7 +7,7 @@ mongoose
     .connect(db)
     .then(() => console.log('DB connected'))
     .catch((err) => console.log(err));
-const app = require('./app');
-app.listen(port, () => {
+const server = require('./app');
+server.listen(port, () => {
     console.log(`Listening on ${port}...`);
 });
