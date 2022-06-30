@@ -115,7 +115,7 @@ Content-Type: application/json
 # body: {
 #   "password": String
 #}
-PATCH http://localhost:5000/api/v1/users/reset-password/dc8e5632d4d6460eddba41dbb1470a75ad46b9ec9287b47533616a5833ef8edd
+PATCH https://chatapp-server-dev.herokuapp.com/api/v1/users/reset-password/16c1f9e1aff3cdbc6ddb68edaa29316ff50f9724dca397e79a533278158b3d1a
 Content-Type: application/json
 
 {
