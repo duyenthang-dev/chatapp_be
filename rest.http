@@ -126,4 +126,5 @@ Content-Type: application/json
 ###### Start a chat with anyone: tìm user theo tên -> trả về id user nếu có -> gửi req lên để tạo 1 room chat với user id đó
 ##1. Find users by name
 GET http://localhost:5000/api/v1/users/find/Ha%20Duyen%20Thang
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjk3NGY0ZDNkZTgzOWMwMDRiZTA4OSIsImlhdCI6MTY1NjYwODc4OSwiZXhwIjoxNjU2NjA5Njg5fQ.S9aUhOufDnnxJb1QQTQvt82cAXVsZrx00FS3w5wmSwo
 Content-Type: application/json; charset=utf-8

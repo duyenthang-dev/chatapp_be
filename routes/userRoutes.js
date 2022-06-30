@@ -6,7 +6,8 @@ const {
     forgotPassword,
     resetPassword,
     changePassword,
-    uploadAvatar
+    uploadAvatar,
+    findByName
 } = require('./../controllers/userController');
 const auth = require('./../middlewares/auth');
 
@@ -15,6 +16,7 @@ router.route('/forgot-password').post(forgotPassword);
 router.route('/reset-password/:token').patch(resetPassword);
 router.route('/change-password').post(changePassword)
 router.route('/uploadAvatar').post( auth.protectedAPI, uploadAvatar);
+router.route('/find/:fullname').get(auth.protectedAPI, findByName)
 module.exports = router;
 
 // passport.authenticate('jwt', { session: false }), getUser

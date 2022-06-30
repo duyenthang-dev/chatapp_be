@@ -190,27 +190,43 @@ exports.changePassword = async (req, res, next) => {
 };
 
 exports.uploadAvatar = async (req, res, next) => {
-    console.log(req.user.id)
+    console.log(req.user.id);
     const form = new formidable.IncomingForm({
         uploadDir: `./uploads/avatar/`,
         keepExtensions: true,
         maxFileSize: 1024 * 1024 * 5,
-        filename : function(name, ext, part, form) {
+        filename: function (name, ext, part, form) {
             return `${req.user.id}${ext}`;
-        }
+        },
     });
 
     form.parse(req, function (err, fields, files) {
         if (err) {
             return next(createError.BadRequest('Cannot upload image. Error: ' + err));
         }
-        const filePathOnCloudinary = "uploads/avatar"
+        const filePathOnCloudinary = 'uploads/avatar';
 
         return res.status(200).json({
             success: true,
             data: {
-                filePathOnCloudinary
-            }
+                filePathOnCloudinary,
+            },
         });
     });
+};
+
+exports.findByName = async (req, res, next) => {
+    try {
+        const { fullname } = req.params;
+        const user = await User.find({ fullname }).populate('chatgroups');
+        return res.status(200).json({
+            success: true,
+            data: {
+                user,
+            },
+        });
+    } catch (arr) {
+        console.error(err);
+        return next(createError.BadRequest('Bad request'));
+    }
 };
