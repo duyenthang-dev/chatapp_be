@@ -5,7 +5,8 @@ const createError = require('http-errors');
 //TODO: tạo 1 chat group
 exports.createChat = async function (req, res, next) {
     try {
-        const {senderId, receiverId, name} = req.body;
+        const {receiverId, name} = req.body;
+        const senderId = req.user.id;
         const receiver = await User.findById(receiverId);
         const sender = await User.findById(senderId);
         if (!sender || !receiver) {
