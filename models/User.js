@@ -60,9 +60,9 @@ const userSchema = new mongoose.Schema(
 );
 
 // virtual populate
-userSchema.virtual('messages', {
-    ref: 'Message',
-    foreignField: 'author',
+userSchema.virtual('chatgroups', {
+    ref: 'ChatGroup',
+    foreignField: 'members',
     localField: '_id',
 });
 

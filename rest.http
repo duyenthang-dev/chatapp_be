@@ -60,7 +60,7 @@ Content-Type: application/json
 #}
 # body: {}
 GET http://localhost:5000/api/v1/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjM1ZTllYjk0YmIzMGVmZjNjMmU1NiIsImlhdCI6MTY1NTk3NjA5MywiZXhwIjoxNjU1OTc2MzkzfQ.ll7tTEN5Hd1t1Zowr13TAVYgV-TCrCtyBI1Ah-nOSNM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjlhMTEzYTE3Njg5NjNiNWM2NzRhNyIsImlhdCI6MTY1NjYwMTA3OSwiZXhwIjoxNjU2NjAxOTc5fQ.AREbUgftgfeEUseCEDiYKtpoQEPo6RlfVxbRssVbbco
 
 
 
