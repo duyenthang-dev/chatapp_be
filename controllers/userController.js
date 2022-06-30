@@ -1,17 +1,15 @@
 const User = require('./../models/User');
 const createError = require('http-errors');
 const sendEmail = require('./../utils/mailSender');
-const {signAccessToken, signRefreshToken} = require('../utils/jwtToken')
+const formidable = require('formidable');
+const { signAccessToken, signRefreshToken } = require('../utils/jwtToken');
 
-exports.getAllUsers = async (req, res, next) => {
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+exports.getAllUsers = async (req, res) => {
     try {
-        const users = await User.find();
-        return res.status(200).json({
-            success: true,
-            data: {
-                users,
-            },
-        });
+        next();
     } catch (err) {
         console.error(err);
         return next(createError.BadRequest('Bad request'));
@@ -21,7 +19,7 @@ exports.getAllUsers = async (req, res, next) => {
 // TODO: US 15: let user view their profile
 exports.getUser = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).populate('chatgroups');
 
         return res.status(200).json({
             success: true,
@@ -151,5 +149,67 @@ exports.resetPassword = async (req, res, next) => {
         data: {
             user,
         },
+    });
+};
+
+exports.changePassword = async (req, res, next) => {
+    console.log('Change password api route');
+    try {
+        const oldPassword = req.body.oldPassword;
+        const newPassword = req.body.newPassword;
+        const confirmPassword = req.body.confirmPassword;
+
+        const accessToken = req.headers.authorizationToken;
+        if (!accessToken)
+            return res.status(401).json({ success: false, message: 'Access token not found' });
+
+        const accesTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+        const verify = jwt.verify(accessToken, accesTokenSecret);
+        User.findById({ _id: verify.id }, (err, user) => {
+            if (err) return res.json('Query error');
+            bcrypt.compare(oldPassword, user.password, (err, result) => {
+                if (result) {
+                    if (newPassword === confirmPassword) {
+                        user.password = newPassword;
+                        user.save();
+                    }
+                }
+            });
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Congratulation! Password succesfully changed!',
+            user: req.user,
+        });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, message: 'Trycatch error', error: err });
+    }
+};
+
+exports.uploadAvatar = async (req, res, next) => {
+    console.log(req.user.id)
+    const form = new formidable.IncomingForm({
+        uploadDir: `./uploads/avatar/`,
+        keepExtensions: true,
+        maxFileSize: 1024 * 1024 * 5,
+        filename : function(name, ext, part, form) {
+            return `${req.user.id}${ext}`;
+        }
+    });
+
+    form.parse(req, function (err, fields, files) {
+        if (err) {
+            return next(createError.BadRequest('Cannot upload image. Error: ' + err));
+        }
+        const filePathOnCloudinary = "uploads/avatar"
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                filePathOnCloudinary
+            }
+        });
     });
 };

@@ -4,9 +4,7 @@ const jwt = require('jsonwebtoken');
 const {signAccessToken, signRefreshToken, verifyRefreshToken} = require('../utils/jwtToken')
 
 exports.register = async function (req, res, next) {
-    
     try {
-        
         const { fullname, email, password } = req.body;
         if (!email || !password || !fullname)
             return next(createError.BadRequest('Name, Email and password must be provided'));
@@ -15,7 +13,6 @@ exports.register = async function (req, res, next) {
             email: req.body.email,
             password: req.body.password,
         });
-        console.log("hihi")
 
         const accessToken = signAccessToken(newUser._id);
         const refreshToken = signRefreshToken(newUser._id);
@@ -29,7 +26,6 @@ exports.register = async function (req, res, next) {
             },
         });
     } catch (err) {
-        console.log(err);
         if (err?.code === 11000) {
             return next(createError.BadRequest('Email already exists'));
         }
