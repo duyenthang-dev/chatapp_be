@@ -31,6 +31,8 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^7.1.2",
-    "socket.io": "^4.5.1"
+    "socket.io": "^4.5.1",
+    "cloudinary": "^1.30.0",
+    "formidable": "^2.0.1"
   }
 }
