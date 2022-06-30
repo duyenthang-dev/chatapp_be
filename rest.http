@@ -31,8 +31,8 @@ POST http://localhost:5000/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "email": "test1@gmail.com",
-    "password": "hehe"
+    "email": "a1@gmail.com",
+    "password": "resetpass"
 }
 
 
@@ -60,7 +60,7 @@ Content-Type: application/json
 #}
 # body: {}
 GET http://localhost:5000/api/v1/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjlhMTEzYTE3Njg5NjNiNWM2NzRhNyIsImlhdCI6MTY1NjYwMTA3OSwiZXhwIjoxNjU2NjAxOTc5fQ.AREbUgftgfeEUseCEDiYKtpoQEPo6RlfVxbRssVbbco
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjk3NGY0ZDNkZTgzOWMwMDRiZTA4OSIsImlhdCI6MTY1NjYwMTY0NSwiZXhwIjoxNjU2NjAyNTQ1fQ.dpzgD4t3yfbd_hnm0XP6A-DVBIBjLupIzeKEtpP-SOs
 
 
 
@@ -74,11 +74,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjlhMTEzY
     // các trường dữ liệu cần update
 #}
 PATCH http://localhost:5000/api/v1/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjM1ZTllYjk0YmIzMGVmZjNjMmU1NiIsImlhdCI6MTY1NTk3NjA5MywiZXhwIjoxNjU1OTc2MzkzfQ.ll7tTEN5Hd1t1Zowr13TAVYgV-TCrCtyBI1Ah-nOSNM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyYjk3NGY0ZDNkZTgzOWMwMDRiZTA4OSIsImlhdCI6MTY1NjYwMTY0NSwiZXhwIjoxNjU2NjAyNTQ1fQ.dpzgD4t3yfbd_hnm0XP6A-DVBIBjLupIzeKEtpP-SOs
 Content-Type: application/json
 
 {
-    "fullname": "Nguyễn Văn Việt",
+    "fullname": "Nguyễn Văn A",
     "phoneNumber": "0123456789",
     "birthDay": "2001-06-05T23:15:30.000Z",
     "address": {
@@ -102,7 +102,7 @@ POST http://localhost:5000/api/v1/users/forgot-password
 Content-Type: application/json
 
     {
-        "email": "test1@gmail.com"
+        "email": "a1@gmail.com"
     }
 
 
@@ -115,11 +115,11 @@ Content-Type: application/json
 # body: {
 #   "password": String
 #}
-PATCH http://localhost:5000/api/v1/users/reset-password/1ddb92c441519ee439959e7e167f77d5e33d73528831b269484adfce98a4959c
+PATCH http://localhost:5000/api/v1/users/reset-password/dc8e5632d4d6460eddba41dbb1470a75ad46b9ec9287b47533616a5833ef8edd
 Content-Type: application/json
 
 {
-    "password": "hehe"
+    "password": "resetpass"
 }
 
 
