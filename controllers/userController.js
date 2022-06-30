@@ -3,7 +3,7 @@ const createError = require('http-errors');
 const sendEmail = require('./../utils/mailSender');
 const formidable = require('formidable');
 const { signAccessToken, signRefreshToken } = require('../utils/jwtToken');
-
+const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -189,30 +189,13 @@ exports.changePassword = async (req, res, next) => {
     }
 };
 
+const upload = multer({
+    dest: "uploads/avatar",
+
+})
+exports.uploadImage = upload.single('photo');
 exports.uploadAvatar = async (req, res, next) => {
-    console.log(req.user.id);
-    const form = new formidable.IncomingForm({
-        uploadDir: `./uploads/avatar/`,
-        keepExtensions: true,
-        maxFileSize: 1024 * 1024 * 5,
-        filename: function (name, ext, part, form) {
-            return `${req.user.id}${ext}`;
-        },
-    });
-
-    form.parse(req, function (err, fields, files) {
-        if (err) {
-            return next(createError.BadRequest('Cannot upload image. Error: ' + err));
-        }
-        const filePathOnCloudinary = 'uploads/avatar';
-
-        return res.status(200).json({
-            success: true,
-            data: {
-                filePathOnCloudinary,
-            },
-        });
-    });
+    console.log(req.file)
 };
 
 exports.findByName = async (req, res, next) => {
