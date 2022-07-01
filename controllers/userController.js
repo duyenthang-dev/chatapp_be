@@ -209,6 +209,7 @@ exports.uploadAvatar = async (req, res, next) => {
         const dirPath = req.file.destination;
         const localPath = req.file.path;
         const cloudfilePath = `ChatApp/${dirPath}`
+        console.log("local: ", localPath, "cloud: ", cloudfilePath)
         const result = await cloudinary.uploader.upload(localPath, {
             folder: cloudfilePath,
             public_id: `${req.user.id}`
