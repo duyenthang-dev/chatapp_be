@@ -1,11 +1,11 @@
 const User = require('./../models/User');
 const createError = require('http-errors');
 const sendEmail = require('./../utils/mailSender');
-const formidable = require('formidable');
 const { signAccessToken, signRefreshToken } = require('../utils/jwtToken');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cloudinary = require("./../utils/cloudinaryConfig")
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -189,13 +189,41 @@ exports.changePassword = async (req, res, next) => {
     }
 };
 
+const multerConfig = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, 'uploads/avatar');
+    },
+    filename: (req, file, callback) => {
+        const ext = file.mimetype.split('/')[1];
+        callback(null, `${req.user.id}.${ext}`);
+    },
+});
 const upload = multer({
-    dest: "uploads/avatar",
-
-})
+    storage: multerConfig,
+});
 exports.uploadImage = upload.single('photo');
+
 exports.uploadAvatar = async (req, res, next) => {
-    console.log(req.file)
+    try {
+        // console.log(req.file.path.split("\\").pop());
+        const dirPath = req.file.destination;
+        const localPath = req.file.path;
+        const cloudfilePath = `ChatApp/${dirPath}`
+        const result = await cloudinary.uploader.upload(localPath, {
+            folder: cloudfilePath,
+            public_id: `${req.user.id}`
+        })
+
+        res.status(200).json({
+            success: true,
+            data:{
+                url: result.url
+            }
+        });
+    } catch (err) {
+        console.log(err);
+        return next(createError.NotFound("Cant not upload to cloud"))
+    }
 };
 
 exports.findByName = async (req, res, next) => {
