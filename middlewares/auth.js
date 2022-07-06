@@ -55,6 +55,7 @@ passport.use(
 
 // middleware verify access token
 exports.protectedAPI = (req, res, next) => {
+    
     passport.authenticate('jwt', { session: false }, (err, user, info) => {
         if (err || !user) {
             return next(createError.Unauthorized(info?.message ? info.message : "User is not authorized"));

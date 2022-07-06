@@ -19,8 +19,14 @@ exports.getAllUsers = async (req, res) => {
 // TODO: US 15: let user view their profile
 exports.getUser = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id).populate('chatgroups');
-
+        const user = await User.findById(req.user.id).populate({
+            path: "chatgroups",
+            populate: {
+                path: "members",
+                model: "User",
+                select: "_id fullname avatar"
+            }
+        });
         return res.status(200).json({
             success: true,
             data: {
