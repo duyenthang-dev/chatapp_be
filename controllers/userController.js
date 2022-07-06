@@ -221,6 +221,17 @@ exports.uploadAvatar = async (req, res, next) => {
             public_id: `${req.user.id}`
         })
 
+        if (result?.url){
+            const user = await User.findByIdAndUpdate(req.user.id, {
+                $set: {
+                    "avatar": result.url
+                }
+            }, {
+                new: true,
+                runValidators: true,
+            });
+        }
+
         res.status(200).json({
             success: true,
             data:{
