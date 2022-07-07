@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-let now = new Date();
-now.setHours(now.getHours() + 2);
-now = new Date(now)
+// let now = new Date();
+// now.setHours(now.getHours() + 2);
+// now = new Date(now)
 const messageSchema = new mongoose.Schema(
     {
         author: {
@@ -20,7 +20,7 @@ const messageSchema = new mongoose.Schema(
         },
         createAt: {
             type: Date,
-            default: now,
+            default: new Date,
         },
         body: {
             type: String,
