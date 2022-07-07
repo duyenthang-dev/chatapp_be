@@ -1,4 +1,5 @@
 const Message = require('./../models/Message');
+const ChatGroup = require('./../models/ChatGroup');
 const createError = require('http-errors');
 
 exports.addMessage = async (req, res, next) => {
@@ -9,11 +10,11 @@ exports.addMessage = async (req, res, next) => {
             author,
             body,
         });
-
         if (!newMessage) {
             console.log('loi roi hehe');
             return next(createError.InternalServerError(err?.message));
         }
+        await ChatGroup.findByIdAndUpdate(chatGroupID, { lastMessage: newMessage });
 
         res.status(201).json({
             success: true,

@@ -5,7 +5,7 @@ const { signAccessToken, signRefreshToken } = require('../utils/jwtToken');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const cloudinary = require("./../utils/cloudinaryConfig")
+const cloudinary = require('./../utils/cloudinaryConfig');
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -19,13 +19,22 @@ exports.getAllUsers = async (req, res) => {
 // TODO: US 15: let user view their profile
 exports.getUser = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id).populate({
-            path: "chatgroups",
-            populate: {
-                path: "members",
-                model: "User",
-                select: "_id fullname avatar"
-            }
+        const user = await User.findById(req.user.id).select("-password -__v -isActive").populate({
+            path: 'chatgroups',
+            select: "-messages -createAt -__v",
+            populate: [
+                {
+                    path: 'members',
+                    model: 'User',
+                    select: '_id fullname avatar',
+                },
+
+                {
+                    path: 'lastMessage',
+                    model: 'Message',
+                    select: '-isRead -chatGroupID -__v',
+                },
+            ],
         });
         return res.status(200).json({
             success: true,
@@ -214,33 +223,37 @@ exports.uploadAvatar = async (req, res, next) => {
         // console.log(req.file.path.split("\\").pop());
         const dirPath = req.file.destination;
         const localPath = req.file.path;
-        const cloudfilePath = `ChatApp/${dirPath}`
-        console.log("local: ", localPath, "cloud: ", cloudfilePath)
+        const cloudfilePath = `ChatApp/${dirPath}`;
+        console.log('local: ', localPath, 'cloud: ', cloudfilePath);
         const result = await cloudinary.uploader.upload(localPath, {
             folder: cloudfilePath,
-            public_id: `${req.user.id}`
-        })
+            public_id: `${req.user.id}`,
+        });
 
-        if (result?.url){
-            const user = await User.findByIdAndUpdate(req.user.id, {
-                $set: {
-                    "avatar": result.url
+        if (result?.url) {
+            const user = await User.findByIdAndUpdate(
+                req.user.id,
+                {
+                    $set: {
+                        avatar: result.url,
+                    },
+                },
+                {
+                    new: true,
+                    runValidators: true,
                 }
-            }, {
-                new: true,
-                runValidators: true,
-            });
+            );
         }
 
         res.status(200).json({
             success: true,
-            data:{
-                url: result.url
-            }
+            data: {
+                url: result.url,
+            },
         });
     } catch (err) {
         console.log(err);
-        return next(createError.NotFound("Cant not upload to cloud"))
+        return next(createError.NotFound('Cant not upload to cloud'));
     }
 };
 
