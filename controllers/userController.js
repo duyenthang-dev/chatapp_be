@@ -71,6 +71,22 @@ exports.updateUser = async (req, res, next) => {
         const user = await User.findByIdAndUpdate(req.user.id, req.body, {
             new: true,
             runValidators: true,
+        }).select("-password -__v -isActive").populate({
+            path: 'chatgroups',
+            select: "-messages -createAt -__v",
+            populate: [
+                {
+                    path: 'members',
+                    model: 'User',
+                    select: '_id fullname avatar',
+                },
+
+                {
+                    path: 'lastMessage',
+                    model: 'Message',
+                    select: '-isRead -chatGroupID -__v',
+                },
+            ],
         });
         res.status(200).json({
             success: true,
@@ -260,7 +276,23 @@ exports.uploadAvatar = async (req, res, next) => {
 exports.findByName = async (req, res, next) => {
     try {
         const { fullname } = req.params;
-        const user = await User.find({ fullname }).populate('chatgroups');
+        const user = await User.find({ fullname }).select("-password -__v -isActive").populate({
+            path: 'chatgroups',
+            select: "-messages -createAt -__v",
+            populate: [
+                {
+                    path: 'members',
+                    model: 'User',
+                    select: '_id fullname avatar',
+                },
+
+                {
+                    path: 'lastMessage',
+                    model: 'Message',
+                    select: '-isRead -chatGroupID -__v',
+                },
+            ],
+        });
         return res.status(200).json({
             success: true,
             data: {

@@ -29,9 +29,10 @@ module.exports = function (server) {
 
         // send message to chat room,
         socket.on('send_message', (data) => {
-            io.in(data.room).emit('receive_message', data);
+            console.log(data)
+            socket.to(data.chatGroupID).emit('receive_message', data);
             // send notification to everyone in chat room
-            socket.to(data.room).emit('notification', data);
+            socket.to(data.chatGroupID).emit('notification', data);
         });
     });
 
