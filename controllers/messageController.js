@@ -47,3 +47,16 @@ exports.getMessages = async (req, res) => {
         return next(createError.InternalServerError(err));
     }
 };
+
+exports.loadRoomMessages = async (roomID) => {
+    try {
+        const messages = await Message.find({ chatGroupID: roomID }).populate({
+            path: 'author',
+            select: '_id fullname avatar',
+        });
+
+        return messages;
+    } catch (error) {
+        return error;
+    }
+};
