@@ -19,23 +19,25 @@ exports.getAllUsers = async (req, res) => {
 // TODO: US 15: let user view their profile
 exports.getUser = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id).select("-password -__v -isActive").populate({
-            path: 'chatgroups',
-            select: "-messages -createAt -__v",
-            populate: [
-                {
-                    path: 'members',
-                    model: 'User',
-                    select: '_id fullname avatar',
-                },
+        const user = await User.findById(req.user.id)
+            .select('-password -__v -isActive')
+            .populate({
+                path: 'chatgroups',
+                select: '-messages -createAt -__v',
+                populate: [
+                    {
+                        path: 'members',
+                        model: 'User',
+                        select: '_id fullname avatar',
+                    },
 
-                {
-                    path: 'lastMessage',
-                    model: 'Message',
-                    select: '-isRead -chatGroupID -__v',
-                },
-            ],
-        });
+                    {
+                        path: 'lastMessage',
+                        model: 'Message',
+                        select: '-isRead -chatGroupID -__v',
+                    },
+                ],
+            });
         return res.status(200).json({
             success: true,
             data: {
@@ -71,23 +73,25 @@ exports.updateUser = async (req, res, next) => {
         const user = await User.findByIdAndUpdate(req.user.id, req.body, {
             new: true,
             runValidators: true,
-        }).select("-password -__v -isActive").populate({
-            path: 'chatgroups',
-            select: "-messages -createAt -__v",
-            populate: [
-                {
-                    path: 'members',
-                    model: 'User',
-                    select: '_id fullname avatar',
-                },
+        })
+            .select('-password -__v -isActive')
+            .populate({
+                path: 'chatgroups',
+                select: '-messages -createAt -__v',
+                populate: [
+                    {
+                        path: 'members',
+                        model: 'User',
+                        select: '_id fullname avatar',
+                    },
 
-                {
-                    path: 'lastMessage',
-                    model: 'Message',
-                    select: '-isRead -chatGroupID -__v',
-                },
-            ],
-        });
+                    {
+                        path: 'lastMessage',
+                        model: 'Message',
+                        select: '-isRead -chatGroupID -__v',
+                    },
+                ],
+            });
         res.status(200).json({
             success: true,
             data: {
@@ -158,30 +162,35 @@ exports.forgotPassword = async (req, res, next) => {
 };
 
 exports.resetPassword = async (req, res, next) => {
-    console.log(req.params.token);
-    const user = await User.findOne({
-        resetPasswordToken: req.params.token,
-        resetPasswordExpires: { $gt: Date.now() },
-    });
-    if (!user) {
-        return next(createError.BadRequest('Token invalid or token has expires'));
+    try {
+        console.log(req.params.token);
+        const user = await User.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+        if (!user) {
+            return next(createError.BadRequest('Token invalid or token has expires'));
+        }
+
+        user.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save({ validateBeforeSave: false });
+        const accessToken = signAccessToken(user._id);
+        const refreshToken = signRefreshToken(user._id);
+
+        res.status(200).json({
+            success: true,
+            accessToken,
+            refreshToken,
+            data: {
+                user,
+            },
+        });
+    } catch (err) {
+        console.log(err);
+        return next(createError.InternalServerError('Server error'));
     }
-
-    user.password = req.body.password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-    const accessToken = signAccessToken(user._id);
-    const refreshToken = signRefreshToken(user._id);
-
-    res.status(200).json({
-        success: true,
-        accessToken,
-        refreshToken,
-        data: {
-            user,
-        },
-    });
 };
 
 exports.changePassword = async (req, res, next) => {
@@ -276,23 +285,25 @@ exports.uploadAvatar = async (req, res, next) => {
 exports.findByName = async (req, res, next) => {
     try {
         const { fullname } = req.params;
-        const user = await User.find({ fullname }).select("-password -__v -isActive").populate({
-            path: 'chatgroups',
-            select: "-messages -createAt -__v",
-            populate: [
-                {
-                    path: 'members',
-                    model: 'User',
-                    select: '_id fullname avatar',
-                },
+        const user = await User.find({ fullname })
+            .select('-password -__v -isActive')
+            .populate({
+                path: 'chatgroups',
+                select: '-messages -createAt -__v',
+                populate: [
+                    {
+                        path: 'members',
+                        model: 'User',
+                        select: '_id fullname avatar',
+                    },
 
-                {
-                    path: 'lastMessage',
-                    model: 'Message',
-                    select: '-isRead -chatGroupID -__v',
-                },
-            ],
-        });
+                    {
+                        path: 'lastMessage',
+                        model: 'Message',
+                        select: '-isRead -chatGroupID -__v',
+                    },
+                ],
+            });
         return res.status(200).json({
             success: true,
             data: {
