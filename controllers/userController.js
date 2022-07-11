@@ -189,7 +189,7 @@ exports.resetPassword = async (req, res, next) => {
         });
     } catch (err) {
         console.log(err);
-        return next(createError.InternalServerError('Server error'));
+        return next(createError.InternalServerError(err));
     }
 };
 
