@@ -199,15 +199,14 @@ exports.changePassword = async (req, res, next) => {
         const oldPassword = req.body.oldPassword;
         const newPassword = req.body.newPassword;
         const confirmPassword = req.body.confirmPassword;
-
-        const accessToken = req.headers.authorizationToken;
-        if (!accessToken)
-            return res.status(401).json({ success: false, message: 'Access token not found' });
-
-        const accesTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-        const verify = jwt.verify(accessToken, accesTokenSecret);
-        User.findById({ _id: verify.id }, (err, user) => {
-            if (err) return res.json('Query error');
+        const accessToken = req.headers.authorization;
+        if(!accessToken) return res.status(401).json({success: false, message: "Access token not found"})
+        const accessTokenArray =  accessToken.split(' ');
+        if(accessTokenArray.length === 1 || accessTokenArray[0] !== 'Bearer') return res.status(400).json({message: "Your token have wrong key"})
+        const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+        const verify = jwt.verify(accessTokenArray[1], accessTokenSecret)
+        User.findById({_id: verify.id}, (err, user) => {
+            if(err) return res.json("Query error")
             bcrypt.compare(oldPassword, user.password, (err, result) => {
                 if (result) {
                     if (newPassword === confirmPassword) {
@@ -217,7 +216,6 @@ exports.changePassword = async (req, res, next) => {
                 }
             });
         });
-
         return res.status(200).json({
             success: true,
             message: 'Congratulation! Password succesfully changed!',
