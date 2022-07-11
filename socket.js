@@ -41,6 +41,7 @@ module.exports = function (server) {
 
         // send message to chat room,
         socket.on('send_message', (data) => {
+            // io.in("room1").emit(/* ... */);
             console.log(data);
             socket.to(data.chatGroupID).emit('receive_message', data);
             // send notification to everyone in chat room
