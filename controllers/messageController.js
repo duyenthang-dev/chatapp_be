@@ -11,7 +11,6 @@ exports.addMessage = async (req, res, next) => {
             body,
         });
         if (!newMessage) {
-            console.log('loi roi hehe');
             return next(createError.InternalServerError(err?.message));
         }
         await ChatGroup.findByIdAndUpdate(chatGroupID, { lastMessage: newMessage });

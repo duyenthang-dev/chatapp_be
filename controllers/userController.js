@@ -9,7 +9,16 @@ const cloudinary = require('./../utils/cloudinaryConfig');
 
 exports.getAllUsers = async (req, res) => {
     try {
-        next();
+        const users = await User.find().select('-password -__v -isActive');
+        if (users.length == 0) {
+            return next(createError.NotFound('There no user available'));
+        }
+        return res.status(200).json({
+            success: true,
+            data: {
+                users,
+            },
+        });
     } catch (err) {
         console.error(err);
         return next(createError.BadRequest('Bad request'));
@@ -200,13 +209,15 @@ exports.changePassword = async (req, res, next) => {
         const newPassword = req.body.newPassword;
         const confirmPassword = req.body.confirmPassword;
         const accessToken = req.headers.authorization;
-        if(!accessToken) return res.status(401).json({success: false, message: "Access token not found"})
-        const accessTokenArray =  accessToken.split(' ');
-        if(accessTokenArray.length === 1 || accessTokenArray[0] !== 'Bearer') return res.status(400).json({message: "Your token have wrong key"})
+        if (!accessToken)
+            return res.status(401).json({ success: false, message: 'Access token not found' });
+        const accessTokenArray = accessToken.split(' ');
+        if (accessTokenArray.length === 1 || accessTokenArray[0] !== 'Bearer')
+            return res.status(400).json({ message: 'Your token have wrong key' });
         const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-        const verify = jwt.verify(accessTokenArray[1], accessTokenSecret)
-        User.findById({_id: verify.id}, (err, user) => {
-            if(err) return res.json("Query error")
+        const verify = jwt.verify(accessTokenArray[1], accessTokenSecret);
+        User.findById({ _id: verify.id }, (err, user) => {
+            if (err) return res.json('Query error');
             bcrypt.compare(oldPassword, user.password, (err, result) => {
                 if (result) {
                     if (newPassword === confirmPassword) {

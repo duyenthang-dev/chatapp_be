@@ -18,7 +18,11 @@ const userSchema = new mongoose.Schema(
         },
         isActive: {
             type: Boolean,
-            default: false,
+            default: true,
+        },
+
+        lastActive: {
+            type: Date,
         },
 
         phoneNumber: {
@@ -42,6 +46,12 @@ const userSchema = new mongoose.Schema(
                 city: '',
             },
         },
+
+        lastSeen: [{
+            chatGroupID: String,
+            time: String,
+        }],
+
         birthDay: {
             type: Date,
             default: new Date(1990, 0, 1),

@@ -4,6 +4,7 @@ const chatGroupSchema = new mongoose.Schema(
     {
         name: {
             type: String,
+            default: ""
         },
         members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' },
@@ -13,7 +14,7 @@ const chatGroupSchema = new mongoose.Schema(
         },
         createAt: {
             type: Date,
-            default: Date.now(),
+            default: new Date(),
         },
     },
     {
