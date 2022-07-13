@@ -30,20 +30,26 @@ module.exports = function (server) {
             console.log(`${data.fullname} has joined room ${data.room}`);
         });
 
-        socket.on('load_room_message', async ({ socketId, roomId, userId }) => {
+        socket.on('load_room_message', async ({ socketId, roomId, userId, prevRoomId }) => {
             try {
                 const messages = await loadRoomMessages(roomId);
+
+                console.log(roomId, prevRoomId)
 
                 await User.updateOne(
                     { _id: userId },
                     {
-                        $pull: { lastSeen: { chatGroupID: roomId } },
+                        $pull: { "lastSeen": { "chatGroupID": {$in:[roomId,prevRoomId]} } },
                     }
                 );
                 await User.updateOne(
                     { _id: userId },
                     {
-                        $addToSet: { lastSeen: { chatGroupID: roomId, time: new Date() } },
+                        $addToSet: { "lastSeen": {$each: [{
+
+                        }, {
+                            
+                        }]} },
                     }
                 );
 

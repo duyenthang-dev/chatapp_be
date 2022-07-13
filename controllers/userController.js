@@ -32,7 +32,7 @@ exports.getUser = async (req, res, next) => {
             .select('-password -__v -isActive')
             .populate({
                 path: 'chatgroups',
-                select: '-messages -createAt -__v',
+                select: '-messages -__v',
                 populate: [
                     {
                         path: 'members',
