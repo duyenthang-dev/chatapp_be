@@ -109,10 +109,11 @@ module.exports = function (server) {
                 lastMessage: newMessage,
                 isEmpty: false,
             });
+            data["_id"] = newMessage._id
 
-            socket.to(data.chatGroupID).emit('receive_message', newMessage);
+            socket.to(data.chatGroupID).emit('receive_message', data);
             // send notification to everyone in chat room
-            socket.to(data.chatGroupID).emit('notification', newMessage);
+            socket.to(data.chatGroupID).emit('notification', data);
 
             if (!data.receiver) return;
             const groupChat = await ChatGroup.find({ members: data.receiver }).populate([
