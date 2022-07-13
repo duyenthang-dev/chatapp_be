@@ -16,6 +16,7 @@ const chatGroupSchema = new mongoose.Schema(
             type: Date,
             default: new Date(),
         },
+        isEmpty: { type: Boolean, default: true },
     },
     {
         toJSON: { virtuals: true },
@@ -25,8 +26,8 @@ const chatGroupSchema = new mongoose.Schema(
 
 
 
-// chatGroupSchema.pre("save", (next) => {
-
+// chatGroupSchema.pre("find", (next) => {
+//     consolee
 // })
 
 const ChatGroup = mongoose.model('ChatGroup', chatGroupSchema);
