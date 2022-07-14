@@ -58,7 +58,7 @@ const userSchema = new mongoose.Schema(
         },
         avatar: {
             type: String,
-            default: '',
+            default: 'https://res.cloudinary.com/master-dev/image/upload/v1657251169/ChatApp/uploads/avatar/default-avatar_glrb8q.png',
         },
         resetPasswordToken: String,
         resetPasswordExpires: Date,

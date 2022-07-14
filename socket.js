@@ -21,7 +21,7 @@ module.exports = function (server) {
             onlineUsers[socket.id] = newUser;
             map1.set(newUser._id, socket.id);
             io.emit('get-onlineUser', onlineUsers);
-            
+
         });
 
         // start chat with anyone
@@ -34,24 +34,33 @@ module.exports = function (server) {
             try {
                 const messages = await loadRoomMessages(roomId);
 
-                console.log(roomId, prevRoomId)
+                console.log(roomId, prevRoomId);
 
                 await User.updateOne(
                     { _id: userId },
                     {
-                        $pull: { "lastSeen": { "chatGroupID": {$in:[roomId,prevRoomId]} } },
+                        $pull: { "lastSeen": { "chatGroupID": { $in: [roomId, prevRoomId] } } },
                     }
                 );
                 await User.updateOne(
                     { _id: userId },
                     {
-                        $addToSet: { "lastSeen": {$each: [{
-
-                        }, {
-                            
-                        }]} },
+                        $push: {
+                            "lastSeen": {
+                                $each: [
+                                    {
+                                        "chatGroupID": roomId,
+                                        "time": new Date(),
+                                    },
+                                    {
+                                        "chatGroupID": prevRoomId,
+                                        "time": new Date(),
+                                    },
+                                ],
+                            },
+                        },
                     }
-                );
+                )
 
                 io.to(socketId).emit('messages_room', messages);
             } catch (err) {
@@ -79,7 +88,6 @@ module.exports = function (server) {
         // tạo phòng chat mới
         socket.on('create_direct_chat', async ({ socketId, userId, targetId }) => {
             // TODO: find if userID === targetId
-            console.log(userId, targetId);
             const id1 = mongoose.Types.ObjectId(userId);
             const id2 = mongoose.Types.ObjectId(targetId);
             const chat = await ChatGroup.findOne({
@@ -88,7 +96,6 @@ module.exports = function (server) {
 
             if (!chat) {
                 // TODO: chưa có chat trước đó, tạo mới
-                console.log('chua tạo chat!');
                 let newChat = await ChatGroup.create({
                     members: [userId, targetId],
                 });
@@ -102,8 +109,8 @@ module.exports = function (server) {
                     socket.emit('direct_chat_created', newChat);
             } else {
                 // TODO: Đã có chat => load lại tin nhắn trong phòng chat
-                console.log('da co');
-                socket.emit('direct_chat_existed', chat._id);
+                // console.log(chat);
+                socket.emit('direct_chat_existed', chat);
             }
         });
 
@@ -115,7 +122,26 @@ module.exports = function (server) {
                 lastMessage: newMessage,
                 isEmpty: false,
             });
-            data["_id"] = newMessage._id
+
+            await User.updateOne(
+                { _id: data.author },
+                {
+                    $pull: { "lastSeen": { "chatGroupID": data.chatGroupID } },
+                }
+            );
+            await User.updateOne(
+                { _id: data.author },
+                {
+                    $push: {
+                        "lastSeen": {
+                            "chatGroupID": data.chatGroupID,
+                            "time": new Date(),
+                        },
+                    },
+                }
+            );
+
+            data['_id'] = newMessage._id;
 
             socket.to(data.chatGroupID).emit('receive_message', data);
             // send notification to everyone in chat room
@@ -138,7 +164,7 @@ module.exports = function (server) {
 
             if (data.receiver) {
                 let socketID = map1.get(data.receiver);
-               
+
                 console.log(socketID);
                 io.to(socketID).emit('refresh_chat', groupChat);
             }
@@ -147,6 +173,7 @@ module.exports = function (server) {
         });
 
         socket.on('disconnect', async () => {
+            const kq = await ChatGroup.deleteMany({isEmpty: true, type: 0})
             const userLeft = onlineUsers[socket.id];
             if (userLeft) {
                 await User.findByIdAndUpdate(userLeft._id, { lastActive: new Date() });

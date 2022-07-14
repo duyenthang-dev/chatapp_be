@@ -17,6 +17,10 @@ const chatGroupSchema = new mongoose.Schema(
             default: new Date(),
         },
         isEmpty: { type: Boolean, default: true },
+        type: {
+            type: Number,
+            default: 0,
+        }
     },
     {
         toJSON: { virtuals: true },
