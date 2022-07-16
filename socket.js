@@ -163,7 +163,7 @@ module.exports = function (server) {
 
             data['_id'] = newMessage._id;
 
-            socket.to(data.chatGroupID).emit('receive_message', newMessage);
+            io.in(data.chatGroupID).emit('receive_message', newMessage);
             // send notification to everyone in chat room
             socket.to(data.chatGroupID).emit('notification', newMessage);
 
@@ -195,7 +195,7 @@ module.exports = function (server) {
         });
 
         socket.on('disconnect', async (reason) => {
-            console.log("disconnect reason", reason);
+            console.log("disconnect reason: ", reason);
             const kq = await ChatGroup.deleteMany({ isEmpty: true, type: 0 });
             const userLeft = onlineUsers[socket.id];
             if (userLeft) {
@@ -207,7 +207,7 @@ module.exports = function (server) {
 
         socket.on('error', (error) => {
             // ...
-            console.log("error reason" , error);
+            console.log("error reason: " , error);
         });
     });
 
