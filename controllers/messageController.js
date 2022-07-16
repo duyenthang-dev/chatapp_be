@@ -22,7 +22,6 @@ exports.addMessage = async (req, res, next) => {
             },
         });
     } catch (err) {
-        console.log('loi roi');
         return next(createError.InternalServerError(err?.message));
     }
 };

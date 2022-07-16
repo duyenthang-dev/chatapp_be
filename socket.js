@@ -21,7 +21,6 @@ module.exports = function (server) {
             onlineUsers[socket.id] = newUser;
             map1.set(newUser._id, socket.id);
             io.emit('get-onlineUser', onlineUsers);
-
         });
 
         // start chat with anyone
@@ -39,28 +38,28 @@ module.exports = function (server) {
                 await User.updateOne(
                     { _id: userId },
                     {
-                        $pull: { "lastSeen": { "chatGroupID": { $in: [roomId, prevRoomId] } } },
+                        $pull: { lastSeen: { chatGroupID: { $in: [roomId, prevRoomId] } } },
                     }
                 );
                 await User.updateOne(
                     { _id: userId },
                     {
                         $push: {
-                            "lastSeen": {
+                            lastSeen: {
                                 $each: [
                                     {
-                                        "chatGroupID": roomId,
-                                        "time": new Date(),
+                                        chatGroupID: roomId,
+                                        time: new Date(),
                                     },
                                     {
-                                        "chatGroupID": prevRoomId,
-                                        "time": new Date(),
+                                        chatGroupID: prevRoomId,
+                                        time: new Date(),
                                     },
                                 ],
                             },
                         },
                     }
-                )
+                );
 
                 io.to(socketId).emit('messages_room', messages);
             } catch (err) {
@@ -114,10 +113,31 @@ module.exports = function (server) {
             }
         });
 
+        // tạo nhóm chat mới
+        socket.on('create_group_chat', async ({ name, members }) => {
+            let newChat = await ChatGroup.create({
+                name: name,
+                members: [...members],
+                type: 1,
+            });
+
+            (newChat = await ChatGroup.findById(newChat._id).populate({
+                path: 'members',
+                model: 'User',
+                select: '_id fullname avatar',
+            })),
+                // io.in(newChat._id).emit('direct_chat_created', newChat);
+                socket.emit('group_chat_created', newChat);
+        });
+
         // send message to chat room,
         socket.on('send_message', async (data) => {
-            console.log(data);
-            const newMessage = await Message.create(data);
+            let newMessage = await Message.create(data);
+            newMessage = await Message.findById(newMessage._id).populate({
+                path: 'author',
+                model: 'User',
+                select: '_id fullname avatar',
+            })
             await ChatGroup.findByIdAndUpdate(data.chatGroupID, {
                 lastMessage: newMessage,
                 isEmpty: false,
@@ -126,16 +146,16 @@ module.exports = function (server) {
             await User.updateOne(
                 { _id: data.author },
                 {
-                    $pull: { "lastSeen": { "chatGroupID": data.chatGroupID } },
+                    $pull: { lastSeen: { chatGroupID: data.chatGroupID } },
                 }
             );
             await User.updateOne(
                 { _id: data.author },
                 {
                     $push: {
-                        "lastSeen": {
-                            "chatGroupID": data.chatGroupID,
-                            "time": new Date(),
+                        lastSeen: {
+                            chatGroupID: data.chatGroupID,
+                            time: new Date(),
                         },
                     },
                 }
@@ -143,9 +163,9 @@ module.exports = function (server) {
 
             data['_id'] = newMessage._id;
 
-            socket.to(data.chatGroupID).emit('receive_message', data);
+            socket.to(data.chatGroupID).emit('receive_message', newMessage);
             // send notification to everyone in chat room
-            socket.to(data.chatGroupID).emit('notification', data);
+            socket.to(data.chatGroupID).emit('notification', newMessage);
 
             if (!data.receiver) return;
             const groupChat = await ChatGroup.find({ members: data.receiver }).populate([
@@ -162,6 +182,8 @@ module.exports = function (server) {
                 },
             ]);
 
+            console.log('alo');
+
             if (data.receiver) {
                 let socketID = map1.get(data.receiver);
 
@@ -172,13 +194,20 @@ module.exports = function (server) {
             // socket.emit('refresh_chat', "hihi");
         });
 
-        socket.on('disconnect', async () => {
-            const kq = await ChatGroup.deleteMany({isEmpty: true, type: 0})
+        socket.on('disconnect', async (reason) => {
+            console.log("disconnect reason", reason);
+            const kq = await ChatGroup.deleteMany({ isEmpty: true, type: 0 });
             const userLeft = onlineUsers[socket.id];
             if (userLeft) {
                 await User.findByIdAndUpdate(userLeft._id, { lastActive: new Date() });
                 console.log('update last active');
+                delete onlineUsers[socket.id];
             }
+        });
+
+        socket.on('error', (error) => {
+            // ...
+            console.log("error reason" , error);
         });
     });
 

@@ -62,7 +62,6 @@ exports.getUser = async (req, res, next) => {
 exports.createUser = async (req, res) => {
     try {
         const newUser = await User.create(req.body);
-        console.log(newUser);
         res.status(200).json({
             success: true,
             data: {
@@ -150,7 +149,6 @@ exports.forgotPassword = async (req, res, next) => {
             subject: 'Đường link lấy lại mật khẩu (có hiệu lực trong 10 phút)',
             message,
         });
-        console.log(resetURL);
 
         res.status(200).json({
             success: true,
@@ -172,7 +170,6 @@ exports.forgotPassword = async (req, res, next) => {
 
 exports.resetPassword = async (req, res, next) => {
     try {
-        console.log(req.params.token);
         const user = await User.findOne({
             resetPasswordToken: req.params.token,
             resetPasswordExpires: { $gt: Date.now() },
@@ -258,7 +255,6 @@ exports.uploadAvatar = async (req, res, next) => {
         const dirPath = req.file.destination;
         const localPath = req.file.path;
         const cloudfilePath = `ChatApp/${dirPath}`;
-        console.log('local: ', localPath, 'cloud: ', cloudfilePath);
         const result = await cloudinary.uploader.upload(localPath, {
             folder: cloudfilePath,
             public_id: `${req.user.id}`,
