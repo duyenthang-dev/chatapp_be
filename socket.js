@@ -90,11 +90,13 @@ module.exports = function (server) {
             const id1 = mongoose.Types.ObjectId(userId);
             const id2 = mongoose.Types.ObjectId(targetId);
             const chat = await ChatGroup.findOne({
-                members: { $all: [id1, id2] },
+                members: { $all: [id1, id2]},
+                type : 0
             });
 
             if (!chat) {
                 // TODO: chưa có chat trước đó, tạo mới
+                console.log("chua co")
                 let newChat = await ChatGroup.create({
                     members: [userId, targetId],
                 });
@@ -109,6 +111,7 @@ module.exports = function (server) {
             } else {
                 // TODO: Đã có chat => load lại tin nhắn trong phòng chat
                 // console.log(chat);
+                console.log("da co")
                 socket.emit('direct_chat_existed', chat);
             }
         });
