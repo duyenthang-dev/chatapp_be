@@ -321,3 +321,87 @@ exports.findByName = async (req, res, next) => {
     }
 };
 //
+exports.getChatList = async (req, res) => {
+    try {
+        const accessToken = req.headers.authorization;
+        if(!accessToken) return res.status(401).json({success: false, message: "Access token not found"});
+        const accessTokenArray =  accessToken.split(' ');
+        if(accessTokenArray.length === 1 || accessTokenArray[0] !== 'Bearer') return res.status(400).json({message: "Your token have wrong key"})
+        const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+        const verify = jwt.verify(accessTokenArray[1], accessTokenSecret)
+        
+        const user = await User.findOne({_id: verify.id}).populate('chatgroups')
+        const result = user.chatgroups
+        if(!user) return res.status(500).json({success: false, message: "You do not have access right to use this feature"})
+        
+        console.log('result:', user)
+        return res.status(200).json({succes: true, message: "Successfully get chat list", chatList: result})
+    } catch (error) {
+        res.status(500).json({success: false, error: error})
+        console.log(error)
+    }
+}
+
+
+exports.addMemberToGroup = async (req, res) => {
+    try {
+        const userId = req.body.userId;
+        const groupId = req.body.groupId;
+        const accessToken = req.headers.authorization;
+        if(!accessToken) return res.status(401).json({success: false, message: "Access token not found"});
+        const accessTokenArray =  accessToken.split(' ');
+        if(accessTokenArray.length === 1 || accessTokenArray[0] !== 'Bearer') return res.status(400).json({message: "Your token have wrong key"})
+        const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+        const verify = jwt.verify(accessTokenArray[1], accessTokenSecret)
+
+        const group = await ChatGroup.findOne({_id: groupId})
+        if(!group) return res.status(401).json({message: "Group not found"})
+
+        // check authorization
+        const userAccess = await User.findOne({_id: verify.id}).populate('chatgroups');
+        console.log(group);
+        console.log('------------------------------------------------------------')
+        console.log(userAccess.chatgroups)
+        if(!userAccess) return res.status(401).json({message: "You do not have access right to use this feature!"})
+        
+        if(!(group.members.includes(userAccess._id))) return res.status(500).json({message: "You do not in this room to add any member!"})
+        if(group.members.includes(userId)) return res.status(400).json({message: "This user is already in this group"})
+        
+        User.findById({_id: userId}, (err, userFound) => {
+            if(err) throw err;
+            if(!userFound) return res.status(401).json({message: "User not found"});
+            group.members.push({_id: userFound._id, fullname: userFound.fullname});
+            group.save();
+            userFound.save();
+            res.status(200).json({groupMembers: group})
+        })
+    } catch (error) {
+        res.status(500).json({success: false, error: error})
+        console.log(error)
+    }
+}
+
+
+exports.viewMessagesOfChatRoom = async (req, res) => {
+    try {
+        const accessToken = req.headers.authorization;
+        if(!accessToken) return res.status(401).json({success: false, message: "Access token not found"});
+        const accessTokenArray =  accessToken.split(' ');
+        if(accessTokenArray.length === 1 || accessTokenArray[0] !== 'Bearer') return res.status(400).json({message: "Your token have wrong key"})
+        const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+        const verify = jwt.verify(accessTokenArray[1], accessTokenSecret)
+        const user = await User.findOne({_id: verify.id});
+        if(!user) return res.status(401).json({success: false, message: "User not found"})
+        let result = []
+        const group = await ChatGroup.findOne({_id: req.body.chatGroupId}).populate('messages')
+        if(!group) return res.status(404).json({message: "Group not found"})
+        if(!(group.members.includes(user._id))) return res.json({success: false, message: "You are not in the room"})
+        result = group.messages;
+        console.log(result)
+
+        res.status(200).json({message: result})
+    } catch (error) {
+        res.status(500).json({success: false, error: error})
+        console.log(error)
+    }
+}
