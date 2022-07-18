@@ -345,7 +345,7 @@ exports.getChatList = async (req, res) => {
 
 exports.addMemberToGroup = async (req, res) => {
     try {
-        const userId = req.body.userId;
+        const usersId = req.body.usersId;
         const groupId = req.body.groupId;
         const accessToken = req.headers.authorization;
         if(!accessToken) return res.status(401).json({success: false, message: "Access token not found"});
@@ -365,16 +365,17 @@ exports.addMemberToGroup = async (req, res) => {
         if(!userAccess) return res.status(401).json({message: "You do not have access right to use this feature!"})
         
         if(!(group.members.includes(userAccess._id))) return res.status(500).json({message: "You do not in this room to add any member!"})
-        if(group.members.includes(userId)) return res.status(400).json({message: "This user is already in this group"})
+        // usersId.forEach(userId => {
+        //     if(group.members.includes(userId)) return res.status(400).json({message: "This user is already in this group"})
+        // })
         
-        User.findById({_id: userId}, (err, userFound) => {
-            if(err) throw err;
+        for(let i = 0; i < usersId.length; i++) {
+            const userFound = await User.findById({_id: usersId[i]})
             if(!userFound) return res.status(401).json({message: "User not found"});
-            group.members.push({_id: userFound._id, fullname: userFound.fullname});
-            group.save();
-            userFound.save();
-            res.status(200).json({groupMembers: group})
-        })
+            group.members.push({_id: userFound._id});
+            await group.save();
+        }
+        res.status(200).json({groupMembers: group})
     } catch (error) {
         res.status(500).json({success: false, error: error})
         console.log(error)
