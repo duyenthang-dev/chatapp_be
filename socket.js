@@ -17,6 +17,7 @@ module.exports = function (server) {
     let map1 = new Map();
 
     io.on('connection', (socket) => {
+        
         socket.on('add-new-user', (newUser) => {
             onlineUsers[socket.id] = newUser;
             map1.set(newUser._id, socket.id);
@@ -33,7 +34,7 @@ module.exports = function (server) {
             try {
                 const messages = await loadRoomMessages(roomId);
 
-                console.log(roomId, prevRoomId);
+                // console.log(roomId, prevRoomId);
 
                 await User.updateOne(
                     { _id: userId },
@@ -170,33 +171,35 @@ module.exports = function (server) {
             // send notification to everyone in chat room
             socket.to(data.chatGroupID).emit('notification', newMessage);
 
-            if (!data.receiver) return;
-            const groupChat = await ChatGroup.find({ members: data.receiver }).populate([
-                {
-                    path: 'members',
-                    model: 'User',
-                    select: '_id fullname avatar',
-                },
+            // if (!data.receiver) return;
+            // const groupChat = await ChatGroup.find({ members: data.receiver }).populate([
+            //     {
+            //         path: 'members',
+            //         model: 'User',
+            //         select: '_id fullname avatar',
+            //     },
 
-                {
-                    path: 'lastMessage',
-                    model: 'Message',
-                    select: '-isRead -chatGroupID -__v',
-                },
-            ]);
+            //     {
+            //         path: 'lastMessage',
+            //         model: 'Message',
+            //         select: '-isRead -chatGroupID -__v',
+            //     },
+            // ]);
 
-            console.log('alo');
+            // console.log('alo');
 
-            if (data.receiver) {
-                let socketID = map1.get(data.receiver);
+            // if (data.receiver) {
+            //     let socketID = map1.get(data.receiver);
 
-                console.log(socketID);
-                io.to(socketID).emit('refresh_chat', groupChat);
-            }
+            //     console.log(data.receiver);
+            //     console.log("hihi", socketID);
+            //     io.to(socketID).emit('refresh_chat', groupChat);
+            // }
 
             // socket.emit('refresh_chat', "hihi");
         });
 
+        // console.log("online user: ", onlineUsers)
         socket.on('disconnect', async (reason) => {
             console.log("disconnect reason: ", reason);
             const kq = await ChatGroup.deleteMany({ isEmpty: true, type: 0 });
@@ -206,12 +209,27 @@ module.exports = function (server) {
                 console.log('update last active');
                 delete onlineUsers[socket.id];
             }
+          
         });
 
         socket.on('error', (error) => {
             // ...
             console.log("error reason: " , error);
         });
+
+        socket.on('logout', async (data) => {
+            console.log(`${data.fullname} has logged out`);
+            const kq = await ChatGroup.deleteMany({ isEmpty: true, type: 0 });
+            const userLeft = onlineUsers[socket.id];
+            if (userLeft) {
+                await User.findByIdAndUpdate(userLeft._id, { lastActive: new Date() });
+                console.log('update last active');
+                delete onlineUsers[socket.id];
+            }
+          
+            socket.disconnect();
+            // socket.io.reconnect();
+        })
     });
 
     return io;

@@ -77,7 +77,7 @@ exports.createUser = async (req, res) => {
 // TODO: US 15: let user update their profile
 exports.updateUser = async (req, res, next) => {
     try {
-        console.log(req.body);
+        // console.log(req.body);
         const user = await User.findByIdAndUpdate(req.user.id, req.body, {
             new: true,
             runValidators: true,
@@ -200,7 +200,7 @@ exports.resetPassword = async (req, res, next) => {
 };
 
 exports.changePassword = async (req, res, next) => {
-    console.log('Change password api route');
+    // console.log('Change password api route');
     try {
         const oldPassword = req.body.oldPassword;
         const newPassword = req.body.newPassword;

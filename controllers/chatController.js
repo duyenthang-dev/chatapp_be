@@ -30,7 +30,7 @@ exports.createChat = async function (req, res, next) {
 // TODO: get chat by id
 exports.getChat = async function (req, res, next) {
     try {
-        console.log(process.env.DATABASE_LOCAL)
+        // console.log(process.env.DATABASE_LOCAL)
         const {id} = req.user;
         const groupChat = await ChatGroup.find({members: id}).populate({
             path: 'members',
