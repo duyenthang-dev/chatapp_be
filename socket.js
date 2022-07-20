@@ -73,7 +73,7 @@ module.exports = function (server) {
                 {
                     path: 'members',
                     model: 'User',
-                    select: '_id fullname avatar',
+                    select: '-password -__v -resetPasswordExpires -resetPasswordToken',
                 },
 
                 {
@@ -105,7 +105,7 @@ module.exports = function (server) {
                 (newChat = await ChatGroup.findById(newChat._id).populate({
                     path: 'members',
                     model: 'User',
-                    select: '_id fullname avatar',
+                    select: '-password -__v -resetPasswordExpires -resetPasswordToken',
                 })),
                     // io.in(newChat._id).emit('direct_chat_created', newChat);
                     socket.emit('direct_chat_created', newChat);
@@ -128,7 +128,7 @@ module.exports = function (server) {
             (newChat = await ChatGroup.findById(newChat._id).populate({
                 path: 'members',
                 model: 'User',
-                select: '_id fullname avatar',
+                select: '-password -__v -resetPasswordExpires -resetPasswordToken',
             })),
                 // io.in(newChat._id).emit('direct_chat_created', newChat);
                 socket.emit('group_chat_created', newChat);
@@ -140,7 +140,7 @@ module.exports = function (server) {
             newMessage = await Message.findById(newMessage._id).populate({
                 path: 'author',
                 model: 'User',
-                select: '_id fullname avatar',
+                select: '-password -__v -resetPasswordExpires -resetPasswordToken',
             })
             await ChatGroup.findByIdAndUpdate(data.chatGroupID, {
                 lastMessage: newMessage,

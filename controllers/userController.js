@@ -37,7 +37,7 @@ exports.getUser = async (req, res, next) => {
                     {
                         path: 'members',
                         model: 'User',
-                        select: '_id fullname avatar',
+                        select: '-password -__v -resetPasswordExpires -resetPasswordToken',
                     },
 
                     {
