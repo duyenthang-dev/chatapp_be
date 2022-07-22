@@ -27,7 +27,7 @@ module.exports = function (server) {
         // start chat with anyone
         socket.on('join_room', async (data) => {
             socket.join(data.room);
-            console.log(`${data.fullname} has joined room ${data.room}`);
+            // console.log(`${data.fullname} has joined room ${data.room}`);
         });
 
         socket.on('load_room_message', async ({ socketId, roomId, userId, prevRoomId }) => {
@@ -209,6 +209,7 @@ module.exports = function (server) {
                 console.log('update last active');
                 delete onlineUsers[socket.id];
             }
+            io.emit('get-onlineUser', onlineUsers);
           
         });
 
@@ -226,6 +227,8 @@ module.exports = function (server) {
                 console.log('update last active');
                 delete onlineUsers[socket.id];
             }
+
+            io.emit('get-onlineUser', onlineUsers);
           
             socket.disconnect();
             // socket.io.reconnect();
